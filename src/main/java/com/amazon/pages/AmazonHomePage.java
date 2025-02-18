@@ -14,6 +14,12 @@ public class AmazonHomePage extends BasePage {
     public static SelenideElement amazonLogo = $x("//div[@id='navbar']//div[@id='nav-logo']");
     public static SelenideElement captchaForm = $x("//form[@action='/errors/validateCaptcha']");
     public static SelenideElement captchaReload = $x("//a[.='Try different image']");
+    public static SelenideElement homePageDeliverAddressBtn = $x("//div[@id='nav-global-location-slot']");
+    public static String homeDeliverCountryNameAddress = "//div/span[@id='glow-ingress-line2'][contains(normalize-space(.), '%s')]";
+    public static String deliverCountryDropDownOption = "//a[contains(@id,'GLUXCountryList')][contains(text(),'%s')]";
+    public static SelenideElement selectDeliverCountryDropDown = $x("//select[@id='GLUXCountryList']");
+    public static SelenideElement changeAddressContinueBtn = $x("//input[@id='GLUXConfirmClose']");
+    public static SelenideElement changeAddressDoneBtn = $x("//button[@name='glowDoneButton']");
 
 
     // METHODS//
@@ -33,5 +39,22 @@ public class AmazonHomePage extends BasePage {
         amazonLogo.shouldBe(Condition.exist)
                 .shouldBe(Condition.visible);
         System.out.println("Entered Amazon Home Page.");
+    }
+
+    public void verifyDeliverAddress(String addressName) {
+        $x(String.format(homeDeliverCountryNameAddress, addressName)).shouldBe(Condition.visible);
+        System.out.println("The " + addressName+ " is set to be the Deliver Address.");
+    }
+
+    public void changeDeliverAddress(String addressName) {
+        smartClick(homePageDeliverAddressBtn);
+        smartClick(selectDeliverCountryDropDown);
+        smartClick($x(String.format(deliverCountryDropDownOption, addressName)));
+        try {
+            smartClick(changeAddressContinueBtn);
+        } catch (ElementNotFound e) {
+            smartClick(changeAddressDoneBtn);
+        }
+        System.out.println("The " + addressName+ " was set to be the Deliver Address.");
     }
 }

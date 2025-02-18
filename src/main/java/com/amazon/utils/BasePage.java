@@ -1,8 +1,11 @@
 package com.amazon.utils;
 
+import static com.codeborne.selenide.Selenide.executeJavaScript;
 import static com.codeborne.selenide.Selenide.open;
 
+import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Selenide;
+import com.codeborne.selenide.SelenideElement;
 import io.cucumber.java.BeforeAll;
 
 import java.util.concurrent.CompletableFuture;
@@ -14,7 +17,7 @@ import org.openqa.selenium.JavascriptExecutor;
 
 public class BasePage {
 
-    private String BASE_URL = "https://www.amazon.com";
+    private final String BASE_URL = "https://www.amazon.com";
 
     @BeforeAll
     protected void setUpBrowser() {
@@ -52,5 +55,23 @@ public class BasePage {
         } finally {
             executor.shutdown();
         }
+    }
+
+    public static void smartClick(SelenideElement target) {
+        try {
+            target.shouldBe(Condition.exist)
+                    .shouldBe(Condition.enabled)
+                    .shouldBe(Condition.visible)
+                    .hover();
+            target.click();
+        } catch (Exception | Error e) {
+            System.out.println(e.getMessage());
+            System.out.println("Click on " + target.toString() + " with JS executor");
+            clickWithJS(target);
+        }
+    }
+
+    public static void clickWithJS(SelenideElement element) {
+        executeJavaScript("arguments[0].click();", element);
     }
 }
