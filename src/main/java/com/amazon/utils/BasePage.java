@@ -1,5 +1,7 @@
 package com.amazon.utils;
 
+import static com.codeborne.selenide.Condition.interactable;
+import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.executeJavaScript;
 import static com.codeborne.selenide.Selenide.open;
 
@@ -69,6 +71,19 @@ public class BasePage {
             System.out.println("Click on " + target.toString() + " with JS executor");
             clickWithJS(target);
         }
+    }
+
+    public void smartSetValue(SelenideElement target, String stringValue) {
+        try {
+            target.should(Condition.exist)
+                    .shouldBe(interactable);
+            target.setValue(stringValue);
+        } catch (Exception | Error e) {
+            System.out.println("Failed to write on " + target.toString());
+            System.out.println(e.getMessage());
+            executeJavaScript("arguments[0].value='{}'", stringValue, $(target));
+        }
+
     }
 
     public static void clickWithJS(SelenideElement element) {
