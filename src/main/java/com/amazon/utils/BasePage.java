@@ -4,6 +4,9 @@ import static com.codeborne.selenide.Condition.interactable;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.executeJavaScript;
 import static com.codeborne.selenide.Selenide.open;
+import static com.diogonunes.jcolor.Ansi.colorize;
+import static com.diogonunes.jcolor.Attribute.YELLOW_TEXT;
+import static org.testng.Assert.assertEquals;
 
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Selenide;
@@ -19,7 +22,7 @@ import org.openqa.selenium.JavascriptExecutor;
 
 public class BasePage {
 
-    private final String BASE_URL = "https://www.amazon.com";
+    public final String BASE_URL = "https://www.amazon.com";
 
     @BeforeAll
     protected void setUpBrowser() {
@@ -68,7 +71,7 @@ public class BasePage {
             target.click();
         } catch (Exception | Error e) {
             System.out.println(e.getMessage());
-            System.out.println("Click on " + target.toString() + " with JS executor");
+            System.out.println(colorize("Click on " + target.toString() + " with JS executor", YELLOW_TEXT()));
             clickWithJS(target);
         }
     }
@@ -89,4 +92,20 @@ public class BasePage {
     public static void clickWithJS(SelenideElement element) {
         executeJavaScript("arguments[0].click();", element);
     }
+
+    public static void assertElementEquals(SelenideElement element, String expectedText,
+                                           String... getType) {
+        String actual;
+        if (getType.length == 0 || "text".equalsIgnoreCase(getType[0])) {
+            actual = element.shouldBe(Condition.visible).getText();
+        } else if ("value".equalsIgnoreCase(getType[0])) {
+            actual = element.shouldBe(Condition.visible).getValue();
+        } else {
+            throw new IllegalArgumentException("Invalid type: " + getType[0]);
+        }
+        System.out.println(colorize("Assertion text: Expected = '" + expectedText + "', Actual = '" + actual + "'",
+                                    YELLOW_TEXT()));
+        assertEquals(actual, expectedText);
+    }
+
 }

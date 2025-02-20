@@ -1,22 +1,26 @@
 package com.amazon.stepDefinitions;
 
+import static com.diogonunes.jcolor.Ansi.colorize;
+import static com.diogonunes.jcolor.Attribute.GREEN_TEXT;
+
 import com.amazon.pages.AmazonHomePage;
-import com.amazon.pages.AmazonSearchResultsPage;
+import com.amazon.pages.AmazonProductPage;
 import com.amazon.utils.BasePage;
 import com.codeborne.selenide.ex.ElementNotFound;
+import com.diogonunes.jcolor.Attribute;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
+import java.util.List;
 
 public class AmazonStepDefinitions extends BasePage {
 
     AmazonHomePage homePage = new AmazonHomePage();
-    AmazonSearchResultsPage searchResultsPage = new AmazonSearchResultsPage();
+    AmazonProductPage productPage = new AmazonProductPage();
 
     @Given("user is on Amazon home page")
     public void verifyHomePagePresence() {
         setUpBrowser();
-        System.out.println("TEST!!!");
         homePage.verifyHomePageLogo();
     }
 
@@ -29,18 +33,12 @@ public class AmazonStepDefinitions extends BasePage {
 
     }
 
-    @When("the user searches for (.*)$")
-    public void searchProduct(String productName) {
-        homePage.searchProduct(productName);
-    }
-
-    @And("the user adds the cheapest (.*) to the basket$")
-    public void addCheapestItemToCart(String productBrand) {
-        searchResultsPage.filterByBrand(productBrand);
-        searchResultsPage.sortPriceLowToHigh();
-        searchResultsPage.checkIfProductAvailable();
-        String priceValue = searchResultsPage.getPrice();
-        System.out.println("Product Price: " + priceValue);
+    @When("the user searches and adds the cheapest items to the basket")
+    public void processProducts(List<String> products) {
+        for (String product : products) {
+            homePage.searchProduct(product);
+            productPage.addCheapestItemToCart(product);
+        }
     }
 
 }

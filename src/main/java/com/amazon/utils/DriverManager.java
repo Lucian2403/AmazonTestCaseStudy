@@ -13,7 +13,7 @@ public class DriverManager {
         options.addArguments("--disable-notifications", "--disable-plugins", "--disable-gpu");
         Configuration.browser = "Chrome";
         Configuration.browserCapabilities = options;
-        Configuration.timeout = Duration.ofSeconds(15).toMillis();
+        Configuration.timeout = Duration.ofSeconds(5).toMillis();
         Configuration.pageLoadTimeout = Duration.ofSeconds(15).toMillis();
         Configuration.holdBrowserOpen = true;
     }
