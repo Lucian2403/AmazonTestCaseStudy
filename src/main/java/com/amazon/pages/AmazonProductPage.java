@@ -3,14 +3,23 @@ package com.amazon.pages;
 import static com.codeborne.selenide.Selenide.$x;
 import static com.codeborne.selenide.Selenide.back;
 import static com.diogonunes.jcolor.Ansi.colorize;
+import static com.diogonunes.jcolor.Attribute.BRIGHT_CYAN_TEXT;
+import static com.diogonunes.jcolor.Attribute.BRIGHT_WHITE_TEXT;
+import static com.diogonunes.jcolor.Attribute.BRIGHT_YELLOW_TEXT;
 import static com.diogonunes.jcolor.Attribute.CYAN_TEXT;
 import static com.diogonunes.jcolor.Attribute.GREEN_TEXT;
+import static com.diogonunes.jcolor.Attribute.RED_TEXT;
 import static com.diogonunes.jcolor.Attribute.YELLOW_TEXT;
 
 import com.amazon.utils.BasePage;
 import com.codeborne.selenide.SelenideElement;
+import com.codeborne.selenide.ex.ElementNotFound;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.testng.Assert;
 
 public class AmazonProductPage extends BasePage {
 
@@ -25,9 +34,11 @@ public class AmazonProductPage extends BasePage {
     public static SelenideElement newOfferPrice = $x("//span[@id='aod-price-1']//span[@class='aok-offscreen']");
     public static SelenideElement addToCartBigBtn = $x("//input[@id='add-to-cart-button']");
     public static SelenideElement addToCartSmallBtn = $x("//input[@name='submit.addToCart']");
-    public static SelenideElement addedSuccessMsg = $x("//div[@id='aod-offer-added-to-cart-1']//div[@class='a-alert-content']");
+    public static SelenideElement addedSuccessMsg = $x(
+            "//div[@id='aod-offer-added-to-cart-1']//div[@class='a-alert-content']");
 
     AmazonHomePage homePage = new AmazonHomePage();
+    String mainPrice;
 
     // METHODS//
     public void filterByBrand(String productBrand) {
@@ -47,17 +58,21 @@ public class AmazonProductPage extends BasePage {
                     "//div[@data-cel-widget='search_result_%d']//span[@data-component-type='s-product-image']/a",
                     productNumber);
             searchResultItem = $x(searchResultDynamic);
+            waitSleep(1);
             if (searchResultItem.exists()) {
                 System.out.println("Selecting the product number " + productNumber);
                 smartClick(searchResultItem);
                 // Check if the product is out of stock
                 if (outOfStockProduct.isDisplayed()) {
-                    System.out.println(colorize("The Product is OUT OF STOCK! Returning to search results...", CYAN_TEXT()));
+                    System.out.println(
+                            colorize("The Product is OUT OF STOCK! Returning to search results...", CYAN_TEXT()));
                     back();
                 } else {
                     System.out.println(colorize("The product is AVAILABLE.", GREEN_TEXT()));
                     break;
                 }
+            } else {
+                Assert.fail(colorize("There are NO AVAILABLE products on first page.", RED_TEXT()));
             }
             productNumber++;
         }
@@ -83,7 +98,6 @@ public class AmazonProductPage extends BasePage {
             // Get the price variant with big text
             String price = priceNumberBig.innerText();
             priceValue = price.substring(1);
-            System.out.println("Price: " + priceValue);
             return priceValue;
         } else {
             System.out.println("No price found.");
@@ -93,7 +107,7 @@ public class AmazonProductPage extends BasePage {
 
     public String checkTheOfferPrice() {
         waitSleep(3);
-        String mainPrice = getPrice();
+        mainPrice = getPrice();
         // Check if the new offer price is the same as the main price
         String newPriceValue = "";
         String regex = "\\$(\\d+\\.\\d+)";
@@ -104,11 +118,12 @@ public class AmazonProductPage extends BasePage {
             String price = matcher.group();
             //Remove the $ sign
             newPriceValue = price.substring(1);
-            System.out.println("New Offer Price: " + newPriceValue);
             if (mainPrice.equals(newPriceValue)) {
                 System.out.println(colorize("THE MAIN PRICE IS THE SAME AS THE NEW OFFER PRICE.", YELLOW_TEXT()));
             } else {
-                System.out.println(colorize("THE MAIN PRICE IS DIFFERENT FROM THE NEW OFFER PRICE. UPDATING THE PRODUCT PRICE...", YELLOW_TEXT()));
+                System.out.println(
+                        colorize("THE MAIN PRICE IS DIFFERENT FROM THE NEW OFFER PRICE. UPDATING THE PRODUCT PRICE...",
+                                 YELLOW_TEXT()));
             }
             return newPriceValue;
         } else {
@@ -117,7 +132,7 @@ public class AmazonProductPage extends BasePage {
     }
 
     public String checkTheOfferPriceAndAddToCart() {
-        String mainPrice = getPrice();
+        mainPrice = getPrice();
         if (allBuyingOptionsBtn.isDisplayed()) {
             smartClick(allBuyingOptionsBtn);
             String newPriceValue = checkTheOfferPrice();
@@ -131,21 +146,22 @@ public class AmazonProductPage extends BasePage {
             smartClick(addToCartBigBtn);
             return mainPrice;
         }
+
     }
 
     //MAIN METHOD FOR THIS PAGE
-    public void addCheapestItemToCart(String productBrand) {
+    public String addCheapestItemToCart(String productBrand) {
         filterByBrand(productBrand);
         sortPriceLowToHigh();
         checkIfProductAvailable();
-        String priceValue = getPrice();
-        System.out.println(colorize(productBrand + " Main Price: " + priceValue, GREEN_TEXT()));
         String updatedProductPrice = checkTheOfferPriceAndAddToCart();
         System.out.println(colorize(productBrand + " UPDATED FINAL PRICE: " + updatedProductPrice, GREEN_TEXT()));
         System.out.println(colorize("The product " + productBrand + " was added to cart.", GREEN_TEXT()));
         // Navigate to home page
         navigateToMainUrl(BASE_URL);
         homePage.verifyHomePageLogo();
+        System.out.println(colorize("\nRETURNING TO THE HOME PAGE", BRIGHT_YELLOW_TEXT()));
+        return updatedProductPrice;
     }
 
 }

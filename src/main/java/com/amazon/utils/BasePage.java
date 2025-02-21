@@ -5,6 +5,7 @@ import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.executeJavaScript;
 import static com.codeborne.selenide.Selenide.open;
 import static com.diogonunes.jcolor.Ansi.colorize;
+import static com.diogonunes.jcolor.Attribute.ITALIC;
 import static com.diogonunes.jcolor.Attribute.YELLOW_TEXT;
 import static org.testng.Assert.assertEquals;
 
@@ -12,7 +13,6 @@ import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 import io.cucumber.java.BeforeAll;
-
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -104,7 +104,7 @@ public class BasePage {
             throw new IllegalArgumentException("Invalid type: " + getType[0]);
         }
         System.out.println(colorize("Assertion text: Expected = '" + expectedText + "', Actual = '" + actual + "'",
-                                    YELLOW_TEXT()));
+                                    ITALIC()));
         assertEquals(actual, expectedText);
     }
 

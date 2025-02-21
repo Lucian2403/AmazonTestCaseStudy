@@ -6,5 +6,8 @@ Feature: Amazon Shopping Cart Functionality
     When the user searches and adds the cheapest items to the basket
       | Snickers |
       | Skittles |
-#    Then the basket should display the correct total
-#    And the user should be redirected to the registration page on checkout
+    And the user enters the shopping cart page
+    Then the basket should display the correct product's prices
+      | Snickers |
+      | Skittles |
+    And the user should be redirected to the registration page on checkout
