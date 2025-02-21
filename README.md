@@ -40,7 +40,7 @@ Before you begin, make sure you have the following:
 #### Clone the Repository
 
     git clone https://github.com/Lucian2403/AmazonTestCaseStudy
-    cd amazon-automation
+    cd AmazonTestCaseStudy
 
 #### Install Dependencies
 
